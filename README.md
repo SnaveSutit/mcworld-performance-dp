@@ -1,18 +1,29 @@
 # world-template
 An advanced Minecraft world template for map makers
 
-## Setup
-How to use this template for map development
+# OS Compatability
+This template is **only** compatible with Windows 10 and Windows 11 due to the use of Powershell. This may change in the future.
+
+# Requirements
+You must have these installed for this template's scripts to function properly.
+- [7zip](https://www.7-zip.org/)
+- [Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [yarn](https://classic.yarnpkg.com/lang/en/docs/install) or [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+# Setting up your world
+How to initialize the template.
 - Create a new repo using this template.
-- Setup a symbolic link to `world-template/datapack` in `world-template/world/datapacks/`
-- Setup a symbolic link to `world-template/resources` in your Minecraft `resourcepacks` folder
-- Setup a symbolic link to `world-template/world` in your Minecraft `saves` folder
-- Modify the `level.dat` file and change the level name to your map's name
-- Run `mcb` inside of the `repo/datapack` folder
+- Run `yarn install` to install dependancies.
+- Then setup the repo with `yarn setup`.
 
+## Creating a Data Pack
+You can create a brand-new Data Pack from a template via `yarn create_datapack`.
 
-## Symbolic Links
-Sybolic links allow us to have a folder be used in two places at once without having to setup any complex folder syncing.
+## Adding other Data Packs
+If you have some pre-made Data Packs you'd like to include, Simply add them to the `datapacks` folder, and register them by running `yarn scan_datapacks`.
 
-Creating a Symbolic Link using powershell
-`new-item -ItemType SymbolicLink -Path "Link Name" -Target "Path to linked folder/file"`
+# Developing
+You can run `yarn dev:datapack-id` to start MC-Build for a specific Data Pack.
+
+# Packaging
+If you run `yarn package` the packaging script will automatically clean, compile, combine and zip the world, Resource Pack, and Data Packs into the `dist/` folder.
