@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 module.exports = {
 	global: {
 		onBuildSuccess: null,
@@ -8,5 +10,6 @@ module.exports = {
 		internalScoreboard: 'i',
 		generatedDirectory: 'zzz',
 		rootNamespace: null,
+		crypto,
 	},
 }
