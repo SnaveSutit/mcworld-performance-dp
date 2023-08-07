@@ -1,87 +1,73 @@
-
 dir a {
 	function test {
-		execute store result score #count v if data storage a:foo list[]
-		execute store result storage a:foo index int 1 run scoreboard players set #index v 0
-		function tests:a/test/iterate with storage a:foo {}
-	}
-
-	dir test {
-		function iterate {
-			$data modify storage a:foo out set from storage a:foo list[$(index)]
-			execute store result storage a:foo index int 1 run scoreboard players add #index v 1
-			execute if score #index v < #count v run function $block with storage a:foo {}
-		}
+		execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 on passengers on origin run say hi
 	}
 
 	function setup {
-		<%%
-			config.x = []
-			for (let i=0; i<10000; i++) {
-				config.x.push({
-					Brain: {memories: {}},
-					HurtByTimestamp: 0,
-					Attributes: [{
-						Base: 0.699999988079071,
-						Name: "minecraft:generic.movement_speed"
-					}],
-					Invulnerable: 0,
-					FallFlying: 0,
-					ShowArms: 0,
-					PortalCooldown: 0,
-					AbsorptionAmount: 0.0,
-					FallDistance: 0.0,
-					DisabledSlots: 0,
-					DeathTime: 0,
-					Pose: {},
-					Invisible: 0,
-					Motion: [0.0, -0.0784000015258789, 0.0],
-					Small: 0,
-					Health: 20.0,
-					Air: 300,
-					OnGround: 1,
-					Rotation: [0.0, 0.0],
-					HandItems: [{}, {}],
-					Fire: -1,
-					ArmorItems: [{}, {}, {}, {}],
-					NoBasePlate: 0,
-					HurtTime: 0
-				})
+		data merge storage a:test {}
+		scoreboard objectives add a.test dummy
+		scoreboard players set 1000 a.test 1000
+		scoreboard players set count a.test 0
+		summon armor_stand ~ ~ ~ {UUID:[I;-1025266400,-941079146,-1920536813,-401552137],Tags:["a.test"]}
+		{
+			execute summon armor_stand run {
+				data merge entity @s {Tags:["test.a"]}
+				data modify storage a:test UUID set from entity @s UUID
 			}
-		%%>
-		data modify storage a:foo list set value [<%config.x.map(v => JSON.stringify(v))%>]
-		data remove storage a:foo out
-		data modify storage a:foo index set value -1
+			execute summon snowball run {
+				data merge entity @s {NoGravity:1b,Tags:["a.test"]}
+				data modify entity @s Owner set from storage a:test UUID
+				ride @s mount c2e3ad20-c7e8-4596-8d86-ef13e810ccf7
+			}
+			execute unless score count a.test > 1000 a.test run function $block
+		}
 	}
 
 	function cleanup {
+		kill @e[tag=a.test]
+		scoreboard objectives remove a.test
+		data remove storage a:test {}
 	}
 }
-
+	
 dir b {
 
 	function test {
-		execute store result score #count v if data storage b:foo list[]
-		data modify storage b:foo copied_list set from storage b:foo list
-		function tests:b/test/iterate
+		execute store result storage b:test Index int 1 run scoreboard players set count b.test 1
+
+		execute store result score size b.test if storage b:test Targets[]
+
+		data modify storage b:test CurrentTarget set from storage b:test Targets[0]
+
+		function tests:b/test/recurse with storage b:test
 	}
 
 	dir test {
-		function iterate {
-			data modify storage b:foo out set from storage b:foo copied_list[-1]
-			data remove storage b:foo copied_list[-1]
-			scoreboard players remove #count v 1
-			# tellraw @a {"storage":"b:foo","nbt":"{}"}
-			execute if score #count v matches 1.. run function $block
+		function recurse {
+			$execute as $(CurrentTarget) run say hi
+			execute store result storage b:test Index int 1 run scoreboard players add count b.test 1
+			$data modify storage b:test CurrentTarget set from storage b:test Targets[$(Index)]
+
+			execute unless score count b.test > size b.test run function $block with storage b:test
 		}
 	}
 
 	function setup {
-		data modify storage b:foo list set value [<%config.x.map(v => JSON.stringify(v))%>]
-		data remove storage b:foo copied_list
-		data remove storage b:foo out
+		data merge storage b:test {}
+		scoreboard objectives add b.test dummy
+		scoreboard players set 1000 a.test 1000
+		scoreboard players set count b.test 0
+		execute summon armor_stand run {
+			data merge entity @s {Tags:["b.test"]}
+			function string_uuid:string_uuid
+			data modify storage b:test Targets append from storage string_uuid:output Text.hoverEvent.contents.id
+			execute unless score count b.test > 1000 b.test run function $block
+		}
 	}
 
 	function cleanup {
+		kill @e[tag=b.test]
+		scoreboard objectives remove b.test
+		data remove storage b:test {}
 	}
 }

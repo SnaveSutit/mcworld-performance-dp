@@ -9,7 +9,8 @@ function load {
 	scoreboard players set #worldborder.sub v 59999968
 	worldborder warning distance 0
 
-	gamerule maxCommandChainLength 1000000000
+	gamerule maxCommandChainLength 1000
+	# gamerule maxCommandChainLength 1000000000
 
 	# For how many ticks to gather data before stopping. More ticks = more consistant data (Default: 1000)
 	scoreboard players set .tick_count v 1000
@@ -101,6 +102,8 @@ function iter {
 
 	title @a times 0 5 0
 	title @a title ["", {"text":"Perf Tool Running...","color":"green"}]
+	execute if score .func_to_run v matches 0 run title @a subtitle ["", {"text":"Test A","color":"aqua"}]
+	execute if score .func_to_run v matches 1 run title @a subtitle ["", {"text":"Test B","color":"aqua"}]
 	title @a actionbar ["", {"text":"Iter/t: ","color":"gray"}, {"score":{"name":".iter","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"ms/t: ","color":"gray"}, {"score":{"name":".delta","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total ms: ","color":"gray"}, {"score":{"name":".total_ms","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total iter: ","color":"gray"}, {"score":{"name":".total_iter","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Ticks Remaining: ","color":"gray"}, {"score":{"name":".loop","objective":"v"},"color":"aqua"}]
 
 	scoreboard players remove .loop v 1
