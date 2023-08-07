@@ -9,15 +9,42 @@ function load {
 	scoreboard players set #worldborder.sub v 59999968
 	worldborder warning distance 0
 
-	gamerule maxCommandChainLength 1000
-	# gamerule maxCommandChainLength 1000000000
+	# gamerule maxCommandChainLength 1000
+	gamerule maxCommandChainLength 1000000000
 
 	# For how many ticks to gather data before stopping. More ticks = more consistant data (Default: 1000)
 	scoreboard players set .tick_count v 1000
 	# Maximum time to use per tick (Default 50)
 	scoreboard players set .max_ms_per_tick v 50
 
+	bossbar add progress "Progress"
+	bossbar set minecraft:progress players @a
+	bossbar set minecraft:progress color purple
+	bossbar set minecraft:progress value 0
+	execute store result bossbar minecraft:progress max run scoreboard players get .tick_count v
+
+	bossbar add iterations_per_tick {"text":"iter/t: ","color":"gray"}
+	# bossbar set minecraft:iterations_per_tick players @a
+	bossbar set minecraft:iterations_per_tick color pink
+	bossbar set minecraft:iterations_per_tick value 0
+	bossbar set minecraft:iterations_per_tick max 1
+
+	bossbar add ms_per_tick {"text":"ms/t","color":"gray"}
+	# bossbar set minecraft:ms_per_tick players @a
+	bossbar set minecraft:ms_per_tick color green
+	bossbar set minecraft:ms_per_tick value 0
+	bossbar set minecraft:ms_per_tick max 1
+
+	function perf_tool:reset
+
 	tellraw @a ["", {"text":"[","color":"dark_gray"},{"text":"- Reloaded! -","color":"aqua"},{"text":"]","color":"dark_gray"}]
+}
+
+function reset {
+	schedule clear perf_tool:iter
+	bossbar set minecraft:progress name ["", {"text":"[Inactive]","color":"gray"}]
+	bossbar set minecraft:iterations_per_tick players
+	bossbar set minecraft:ms_per_tick players
 }
 
 function start_comparison {
@@ -27,6 +54,22 @@ function start_comparison {
 }
 
 function zzzstart_internal {
+
+	bossbar set minecraft:progress players @a
+	bossbar set minecraft:iterations_per_tick players @a
+	bossbar set minecraft:ms_per_tick players @a
+
+	bossbar set minecraft:progress value 0
+	execute store result bossbar minecraft:progress max run scoreboard players get .tick_count v
+
+	bossbar set minecraft:iterations_per_tick value 0
+	bossbar set minecraft:iterations_per_tick max 1
+
+	bossbar set minecraft:ms_per_tick value 0
+	bossbar set minecraft:ms_per_tick max 1
+
+	bossbar set minecraft:ms_per_tick color green
+
 	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- Test A ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 	function tests:a/setup
@@ -100,11 +143,55 @@ function iter {
 	# execute store result storage perf_tool:ram iterations[-1].ms int 1 run scoreboard players get .delta v
 	# execute store result storage perf_tool:ram iterations[-1].iter int 1 run scoreboard players get .iter v
 
+	scoreboard players set #loops v 1000
+	scoreboard players operation #loops v -= .loop v
+	execute store result bossbar minecraft:progress value run scoreboard players get #loops v
+
+	execute store result bossbar minecraft:iterations_per_tick value run scoreboard players get .iter v
+	execute store result bossbar minecraft:iterations_per_tick max run scoreboard players get .max_iter v
+
+	(
+		bossbar set minecraft:iterations_per_tick name ["",
+			{"text":"iter/t","color":"gray"},
+			{"text":" (","color":"dark_gray"},
+			{"score":{"name":".min_iter", "objective":"v"},"color":"red"},
+			{"text":"/","color":"dark_gray"},
+			{"score":{"name":".iter", "objective":"v"},"color":"aqua"},
+			{"text":"/","color":"dark_gray"},
+			{"score":{"name":".max_iter", "objective":"v"},"color":"green"},
+			{"text":")","color":"dark_gray"}
+		]
+	)
+
+	execute store result bossbar minecraft:ms_per_tick value run scoreboard players get .delta v
+	execute store result bossbar minecraft:ms_per_tick max run scoreboard players get .max_ms v
+	(
+		bossbar set minecraft:ms_per_tick name ["",
+			{"text":"ms/t","color":"gray"},
+			{"text":" (","color":"dark_gray"},
+			{"score":{"name":".min_ms", "objective":"v"},"color":"green"},
+			{"text":"/","color":"dark_gray"},
+			{"score":{"name":".delta", "objective":"v"},"color":"aqua"},
+			{"text":"/","color":"dark_gray"},
+			{"score":{"name":".max_ms", "objective":"v"},"color":"red"},
+			{"text":")","color":"dark_gray"}
+		]
+	)
+	execute if score .delta v matches ..50 run {
+		bossbar set minecraft:ms_per_tick color green
+	}
+	execute if score .delta v matches 51..100 run {
+		bossbar set minecraft:ms_per_tick color yellow
+	}
+	execute if score .delta v matches 101..150 run {
+		bossbar set minecraft:ms_per_tick color red
+	}
+
 	title @a times 0 5 0
 	title @a title ["", {"text":"Perf Tool Running...","color":"green"}]
 	execute if score .func_to_run v matches 0 run title @a subtitle ["", {"text":"Test A","color":"aqua"}]
 	execute if score .func_to_run v matches 1 run title @a subtitle ["", {"text":"Test B","color":"aqua"}]
-	title @a actionbar ["", {"text":"Iter/t: ","color":"gray"}, {"score":{"name":".iter","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"ms/t: ","color":"gray"}, {"score":{"name":".delta","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total ms: ","color":"gray"}, {"score":{"name":".total_ms","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total iter: ","color":"gray"}, {"score":{"name":".total_iter","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Ticks Remaining: ","color":"gray"}, {"score":{"name":".loop","objective":"v"},"color":"aqua"}]
+	bossbar set minecraft:progress name ["", {"text":"Total ms: ","color":"gray"}, {"score":{"name":".total_ms","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total iter: ","color":"gray"}, {"score":{"name":".total_iter","objective":"v"},"color":"aqua"}]
 
 	scoreboard players remove .loop v 1
 	execute(if score .loop v matches 1..){
@@ -196,6 +283,7 @@ function readout_single {
 }
 
 function readout_comparison {
+	bossbar set minecraft:progress name ["", {"text":"[Inactive]","color":"gray"}]
 
 	execute store result score .a.total_iter v run data get storage perf_tool:ram last_readout.total_iter
 	scoreboard players operation .b.total_iter v = .total_iter v
@@ -222,6 +310,8 @@ function readout_comparison {
 		scoreboard players operation .output v -= .total_iter_comp v
 		tellraw @a ["", {"text":"Test A ran "}, {"score":{"name":".output","objective":"v"}}, {"text":"% slower than Test B"}]
 	}
+	
+	function perf_tool:reset
 }
 
 dir worldborder {
