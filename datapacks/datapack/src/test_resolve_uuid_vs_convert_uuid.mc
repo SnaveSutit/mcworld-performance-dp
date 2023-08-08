@@ -3,7 +3,7 @@ dir a {
 		execute summon marker run {
 			function string_uuid:string_uuid
 
-			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function tests:a/target with storage string_uuid:output Text.hoverEvent.contents
+			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function a:target with storage string_uuid:output Text.hoverEvent.contents
 
 			kill @s
 		}
@@ -28,16 +28,16 @@ dir b {
 
 	function test {
 		execute summon marker run {
-			function gu:generate
+			function v16:main with entity @s
 
-			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function tests:b/target with storage gu:main
+			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function b:target with storage uuidcalc
 
 			kill @s
 		}
 	}
 
 	function target {
-		$execute as $(out) run scoreboard players set #x v 1
+		$execute as $(output) run scoreboard players set #x v 1
 	}
 
 	function setup {

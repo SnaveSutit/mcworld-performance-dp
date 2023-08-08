@@ -37,43 +37,41 @@ function generateSearchTree(items, trimmer) {
 	return recurse()
 }
 let list = []
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 1024; i++) {
 	list.push(i)
 }
 const tree = generateSearchTree(list)
 
 const functions = []
-
-function recurse(stick) {
-	switch (stick.type) {
+function recurse(branch) {
+	switch (branch.type) {
 		case 'leaf':
 			functions.push({
-				id: stick.scoreIndex,
-				content: [`scoreboard players set #x v ${stick.item}`],
+				id: branch.scoreIndex,
+				content: [`scoreboard players set #x v ${branch.item}`],
 			})
 			break
 		case 'branch':
 			const content = []
-			for (const item of item.items) {
+			for (const item of branch.items) {
 				recurse(item)
 				if (item.type === 'leaf') {
 					content.push(
-						`execute if score #x v matches ${item.scoreIndex} run function ${item.scoreIndex}`
+						`execute if score #value v matches ${item.scoreIndex} run function tests:a/test/${item.scoreIndex}`
 					)
 				} else {
 					content.push(
-						`execute if score #x v matches ${item.minScoreIndex}..${item.maxScoreIndex} run function ${item.minScoreIndex}_${item.maxScoreIndex}`
+						`execute if score #value v matches ${item.minScoreIndex}..${item.maxScoreIndex} run function tests:a/test/${item.minScoreIndex}_${item.maxScoreIndex}`
 					)
 				}
 			}
-			functions.push({ id: `${stick.minScoreIndex}_${stick.maxScoreIndex}`, content })
+			functions.push({ id: `${branch.minScoreIndex}_${branch.maxScoreIndex}`, content })
 			break
 	}
 }
 
 recurse(tree)
-
-console.log(functions)
+// console.log(functions)
 
 module.exports = {
 	global: {
@@ -86,5 +84,6 @@ module.exports = {
 		generatedDirectory: 'zzz',
 		rootNamespace: null,
 		crypto,
+		functions,
 	},
 }
