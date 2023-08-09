@@ -44,6 +44,8 @@ function load {
 
 function clear_results {
 	kill @e[tag=perf_tool.test_results_display]
+	summon text_display -3.99 3.75 0 {text:'["", {"text": "VS"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[2f,2f,2f]}}
+
 	summon text_display -3.99 4 2.0 {text:'["", {"storage":"perf_tool:ram", "nbt":"test_a_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 4 -1.0 {text:'["", {"storage":"perf_tool:ram", "nbt":"test_b_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 
