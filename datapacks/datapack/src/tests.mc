@@ -1,52 +1,58 @@
+
 dir a {
 	function test {
-		execute summon marker run {
-			function string_uuid:string_uuid
+		execute store result score #count v if data storage a:foo list[]
+		execute store result storage a:foo input.index int 1 run scoreboard players set #index v 0
+		function tests:a/test/iterate with storage a:foo input
+	}
 
-			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function tests:a/target with storage string_uuid:output Text.hoverEvent.contents
-
-			kill @s
+	dir test {
+		function iterate {
+			$data modify storage a:foo out set from storage a:foo list[$(index)]
+			execute store result storage a:foo input.index int 1 run scoreboard players add #index v 1
+			execute if score #index v < #count v run function $block with storage a:foo input
 		}
 	}
 
-	function target {
-		$execute as $(id) run scoreboard players set #x v 1
-	}
-
 	function setup {
-		data merge storage a:test {}
-		summon marker ~ ~ ~ {UUID:[I;-1025266400,-941079146,-1920536813,-401552137]}
+		<%%
+			config.x = []
+			for (let i=0; i<10000; i++) {
+				config.x.push(i)
+			}
+		%%>
+		data modify storage a:foo list set value [<%config.x.map(v => JSON.stringify(v))%>]
+		data remove storage a:foo out
+		data modify storage a:foo input.index set value -1
 	}
 
 	function cleanup {
-		data remove storage a:test {}
-		kill c2e3ad20-c7e8-4596-8d86-ef13e810ccf7
 	}
 }
 
 dir b {
 
 	function test {
-		execute summon marker run {
-			function gu:generate
+		execute store result score #count v if data storage b:foo list[]
+		data modify storage b:foo copied_list set from storage b:foo list
+		function tests:b/test/iterate
+	}
 
-			execute as c2e3ad20-c7e8-4596-8d86-ef13e810ccf7 run function tests:b/target with storage gu:main
-
-			kill @s
+	dir test {
+		function iterate {
+			data modify storage b:foo out set from storage b:foo copied_list[-1]
+			data remove storage b:foo copied_list[-1]
+			scoreboard players remove #count v 1
+			execute if score #count v matches 1.. run function $block
 		}
 	}
 
-	function target {
-		$execute as $(out) run scoreboard players set #x v 1
-	}
-
 	function setup {
-		data merge storage b:test {}
-		summon marker ~ ~ ~ {UUID:[I;-1025266400,-941079146,-1920536813,-401552137]}
+		data modify storage b:foo list set value [<%config.x.map(v => JSON.stringify(v))%>]
+		data remove storage b:foo copied_list
+		data remove storage b:foo out
 	}
 
 	function cleanup {
-		data remove storage b:test {}
-		kill c2e3ad20-c7e8-4596-8d86-ef13e810ccf7
 	}
 }
