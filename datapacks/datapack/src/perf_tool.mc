@@ -44,8 +44,8 @@ function load {
 
 function clear_results {
 	kill @e[tag=perf_tool.test_results_display]
-	summon text_display -3.99 4 2.0 {text:'["", {"storage":"perf_tool:book", "nbt":"test_a_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
-	summon text_display -3.99 4 -1.0 {text:'["", {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 4 2.0 {text:'["", {"storage":"perf_tool:ram", "nbt":"test_a_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 4 -1.0 {text:'["", {"storage":"perf_tool:ram", "nbt":"test_b_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 
 	summon text_display -3.99 2.5 2.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 2.5 -1.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
@@ -94,7 +94,7 @@ function zzzstart_internal {
 
 	bossbar set minecraft:ms_per_tick color green
 
-	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
+	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:ram", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 	function tests:a/setup
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
@@ -240,7 +240,7 @@ function iter {
 			scoreboard players set .is_comparison v 2
 			scoreboard players set .func_to_run v 1
 
-			tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
+			tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:ram", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 			function tests:b/setup
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
