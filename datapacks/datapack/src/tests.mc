@@ -18,7 +18,7 @@ dir a {
 		<%%
 			config.x = []
 			for (let i=0; i<10000; i++) {
-				config.x.push(i)
+				config.x.push(config.crypto.randomUUID())
 			}
 		%%>
 		data modify storage a:foo list set value [<%config.x.map(v => JSON.stringify(v))%>]

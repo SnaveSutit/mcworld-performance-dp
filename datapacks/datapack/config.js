@@ -9,7 +9,7 @@ module.exports = {
 		generatedDirectory: 'zzz',
 		rootNamespace: null,
 		// Crypto and treeGen are useful for generating UUIDs and optimized scoreboard trees respectively.
-		// crypto: require('crypto'),
+		crypto: require('crypto'),
 		// functions: require('./treeGen')
 	},
 }
