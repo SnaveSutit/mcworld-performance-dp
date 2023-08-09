@@ -10,8 +10,6 @@ function settings {
 	scoreboard players set .tick_count v 1200
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
-	# The name of the comparison. This is used to identify the test in the results.
-	data modify storage perf_tool:ram comparison_name set value '{"text": "A vs B"}'
 	# The name of the first test. This is used to identify the test in the results.
 	data modify storage perf_tool:ram test_a_name set value '{"text": "My Test A"}'
 	# The name of the second test. This is used to identify the test in the results.
