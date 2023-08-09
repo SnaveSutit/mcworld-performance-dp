@@ -18,36 +18,63 @@ function settings {
 
 dir a {
 	function test {
-		# Everything ran from this function will count towards the time spent on the test.
+		#execute as @e[tag=item] run scoreboard players add x test 1
+
+		#ticking known entities
+		data modify storage mud:main tick set from storage mud:main tick_entries
+		data remove storage mud:temp entity
+		data modify storage mud:temp entity set from storage mud:main tick[-1]
+		data remove storage mud:main tick[-1]
+		execute if data storage mud:temp entity.uuid run function mud:__internal/tick_all
+
+		#checking list
+		execute if data storage mud:main tick_entries[0] run function mud:__internal/death_check
+
+		#iterating fake gametime
+		scoreboard players add gametime mud.time 1
 	}
 
-	dir test {
-		# Any extra functions required for test can be put here
+	function target {
+		scoreboard players add #x v 1
 	}
 
 	function setup {
-		# This function will be run before the performance test begins.
+		scoreboard players set #x v 0
+		LOOP(100,i){
+			execute positioned 0 2 0 summon marker run function mud:register {"command":"function tests:a/target","setup":""}
+			LOOP(10,x){
+				summon marker 0 2 0 {Tags:["a.i"]}
+			}
+		}
 	}
 
 	function cleanup {
-		# This function will be run after the performance test ends.
+		kill @e[type=marker]
+		scoreboard players set #x v 0
 	}
 }
 
 dir b {
 	function test {
-		# Everything ran from this function will count towards the time spent on the test.
+		execute as @e run function tests:b/target
 	}
 
-	dir test {
-		# Any extra functions required for test can be put here
+	function target {
+		execute if entity @s[tag=b.test] run scoreboard players add #x v 1
 	}
 
 	function setup {
-		# This function will be run before the performance test begins.
+		scoreboard players set #x v 0
+		LOOP(100,i) {
+			summon marker 0 2 0 {Tags:["b.test"]}
+			LOOP(10,x){
+				summon marker 0 2 0 {Tags:["b.i"]}
+			}
+		} 
 	}
 
 	function cleanup {
-		# This function will be run after the performance test ends.
+		kill @e[type=marker]
+		scoreboard players set #x v 0
 	}
 }
