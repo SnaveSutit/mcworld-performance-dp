@@ -42,6 +42,10 @@ function load {
 	tellraw @a ["", {"text":"[","color":"dark_gray"},{"text":"- Reloaded! -","color":"aqua"},{"text":"]","color":"dark_gray"}]
 }
 
+function picture_mode {
+	execute as @a run tp @s 1.50 1.00 0.50 90.00 -3.00
+}
+
 function clear_results {
 	kill @e[tag=perf_tool.test_results_display]
 	summon text_display -3.99 3.75 0 {text:'["", {"text": "VS"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[2f,2f,2f]}}
