@@ -1,6 +1,3 @@
-const crypto = require('crypto')
-const functions = require('./treeGen')
-
 module.exports = {
 	global: {
 		onBuildSuccess: null,
@@ -11,7 +8,8 @@ module.exports = {
 		internalScoreboard: 'i',
 		generatedDirectory: 'zzz',
 		rootNamespace: null,
-		crypto,
-		functions,
+		// Crypto and treeGen are useful for generating UUIDs and optimized scoreboard trees respectively.
+		// crypto: require('crypto'),
+		// functions: require('./treeGen')
 	},
 }
