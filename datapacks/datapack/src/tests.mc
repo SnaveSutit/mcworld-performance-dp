@@ -13,7 +13,7 @@ function settings {
 	# The name of the first test. This is used to identify the test in the results.
 	data modify storage perf_tool:ram test_a_name set value '{"text": "M.U.D. Macro UUID Directory"}'
 	# The name of the second test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_b_name set value '{"text": "@e -> @s[tag=...]"}'
+	data modify storage perf_tool:ram test_b_name set value '{"text": "@e[tag=...]"}'
 }
 
 dir a {
@@ -39,7 +39,7 @@ dir a {
 	}
 
 	function setup {
-		scoreboard players set #x v 0
+		data modify storage mud:main tick_entries set value []
 		LOOP(100,i){
 			execute positioned 0 2 0 summon marker run function mud:register {"command":"function tests:a/target","setup":""}
 			LOOP(10,x){
@@ -50,21 +50,19 @@ dir a {
 
 	function cleanup {
 		kill @e[type=marker]
-		scoreboard players set #x v 0
 	}
 }
 
 dir b {
 	function test {
-		execute as @e run function tests:b/target
+		execute as @e[tag=b.test] run function tests:b/target
 	}
 
 	function target {
-		execute if entity @s[tag=b.test] run scoreboard players add #x v 1
+		scoreboard players add #x v 1
 	}
 
 	function setup {
-		scoreboard players set #x v 0
 		LOOP(100,i) {
 			summon marker 0 2 0 {Tags:["b.test"]}
 			LOOP(10,x){
@@ -75,6 +73,5 @@ dir b {
 
 	function cleanup {
 		kill @e[type=marker]
-		scoreboard players set #x v 0
 	}
 }
