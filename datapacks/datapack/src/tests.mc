@@ -11,9 +11,9 @@ function settings {
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
 	# The name of the first test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_a_name set value '{"text": "My Test A"}'
+	data modify storage perf_tool:ram test_a_name set value '{"text": "@e -> @s[tag=...]"}'
 	# The name of the second test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_b_name set value '{"text": "My Test B"}'
+	data modify storage perf_tool:ram test_b_name set value '{"text": "M.U.D. Macro UUID Directory"}'
 }
 
 dir a {
@@ -70,7 +70,7 @@ dir b {
 			LOOP(10,x){
 				summon marker 0 2 0 {Tags:["b.i"]}
 			}
-		} 
+		}
 	}
 
 	function cleanup {
