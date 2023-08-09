@@ -12,10 +12,12 @@ function load {
 	# gamerule maxCommandChainLength 1000
 	gamerule maxCommandChainLength 1000000000
 
-	# For how many ticks to gather data before stopping. More ticks = more consistant data (Default: 1000)
-	scoreboard players set .tick_count v 1000
-	# Maximum time to use per tick (Default 50)
-	scoreboard players set .max_ms_per_tick v 50
+	function tests:settings
+
+	scoreboard players operation .expected_total_ms v = .tick_count v
+	scoreboard players operation .expected_total_ms v *= .max_ms_per_tick v
+
+	function perf_tool:clear_results
 
 	bossbar add progress "Progress"
 	bossbar set minecraft:progress players @a
@@ -40,7 +42,29 @@ function load {
 	tellraw @a ["", {"text":"[","color":"dark_gray"},{"text":"- Reloaded! -","color":"aqua"},{"text":"]","color":"dark_gray"}]
 }
 
+function clear_results {
+	kill @e[tag=perf_tool.test_results_display]
+	summon text_display -3.99 4 2.0 {text:'["", {"storage":"perf_tool:book", "nbt":"test_a_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 4 -1.0 {text:'["", {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true}, {"text": " Results"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_nameplate'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+
+	summon text_display -3.99 2.5 2.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 2.5 -1.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+
+	summon text_display -3.99 1.85 0.55 {text:'["", {"text": "|"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[4f,4f,4f]}}
+	summon text_display -3.99 3.0 0 {text:'["", {"text": "0%"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[1f,1f,1f]}}
+	summon text_display -3.99 3.0 0 {text:'["", {"text": "(+-2%)"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage_avg_error'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
+
+	summon text_display -3.99 1.8 0 {text:'["", {"text": "Start/Stop"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 1.8 3 {text:'["", {"text": "Quick-Test A"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+	summon text_display -3.99 1.8 -3 {text:'["", {"text": "Quick-Test B"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
+}
+
 function reset {
+	function perf_tool:end_comparison
+	function perf_tool:clear_results
+}
+
+function end_comparison {
 	schedule clear perf_tool:iter
 	bossbar set minecraft:progress name ["", {"text":"[Inactive]","color":"gray"}]
 	bossbar set minecraft:iterations_per_tick players
@@ -70,7 +94,7 @@ function zzzstart_internal {
 
 	bossbar set minecraft:ms_per_tick color green
 
-	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- Test A ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
+	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 	function tests:a/setup
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
@@ -143,7 +167,7 @@ function iter {
 	# execute store result storage perf_tool:ram iterations[-1].ms int 1 run scoreboard players get .delta v
 	# execute store result storage perf_tool:ram iterations[-1].iter int 1 run scoreboard players get .iter v
 
-	scoreboard players set #loops v 1000
+	scoreboard players operation #loops v = .tick_count v
 	scoreboard players operation #loops v -= .loop v
 	execute store result bossbar minecraft:progress value run scoreboard players get #loops v
 
@@ -207,15 +231,16 @@ function iter {
 
 		execute(if score .is_comparison v matches 1){
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
+			function perf_tool:text_display_readout_a
 			function perf_tool:save_readout
-			function perf_tool:readout_single
+			# function perf_tool:readout_single
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Cleanup...","color":"aqua"}]
 			function tests:a/cleanup
 			tellraw @a [{"text":"'◘ ","color":"dark_gray"}, {"text":"Cleanup Complete!","color":"green"}]
 			scoreboard players set .is_comparison v 2
 			scoreboard players set .func_to_run v 1
 
-			tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- Test B ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
+			tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:book", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 			function tests:b/setup
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
@@ -224,7 +249,8 @@ function iter {
 
 		}else execute(if score .is_comparison v matches 2){
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
-			function perf_tool:readout_single
+			function perf_tool:text_display_readout_b
+			# function perf_tool:readout_single
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Cleanup...","color":"aqua"}]
 			function tests:b/cleanup
 			tellraw @a [{"text":"'◘ ","color":"dark_gray"}, {"text":"Cleanup Complete!","color":"green"}]
@@ -282,6 +308,60 @@ function readout_single {
 
 }
 
+LOOP(['a', 'b'],i) {
+	function text_display_readout_<%i%> {
+		(
+			data modify entity @e[tag=perf_tool.test_<%i%>_results,limit=1] text set value '[{"text":"","color":"gray"},
+				{"text": "Total Iterations: "},
+				{"score": {"name": ".total_iter", "objective": "v"}, "color": "aqua"},
+				"\\n\\n",
+				{"text": "Total ms"},
+				" (",
+				{"text": "Expected", "color": "yellow"},
+				"/",
+				{"text": "Actual", "color": "aqua"},
+				")",
+				"\\n -> ",
+				{"score": {"name": ".expected_total_ms", "objective": "v"}, "color": "yellow"},
+				"/",
+				{"score": {"name": ".total_ms", "objective": "v"}, "color": "aqua"},
+				"\\n\\n",
+
+				{"text": "ms/t"},
+				" (",
+				{"text": "Min", "color": "green"},
+				"/",
+				{"text": "Avg", "color": "aqua"},
+				"/",
+				{"text": "Max", "color": "red"},
+				")",
+				"\\n -> ",
+				{"score": {"name": ".min_ms", "objective": "v"}, "color": "green"},
+				"/",
+				{"score": {"name": ".avg_ms", "objective": "v"}, "color": "aqua"},
+				"/",
+				{"score": {"name": ".max_ms", "objective": "v"}, "color": "red"},
+				"\\n\\n",
+
+				{"text": "Iterations/t"},
+				" (",
+				{"text": "Min", "color": "red"},
+				"/",
+				{"text": "Avg", "color": "aqua"},
+				"/",
+				{"text": "Max", "color": "green"},
+				")",
+				"\\n -> ",
+				{"score": {"name": ".min_iter", "objective": "v"}, "color": "red"},
+				"/",
+				{"score": {"name": ".avg_iter", "objective": "v"}, "color": "aqua"},
+				"/",
+				{"score": {"name": ".max_iter", "objective": "v"}, "color": "green"}
+			]'
+		)
+	}
+}
+
 function readout_comparison {
 	bossbar set minecraft:progress name ["", {"text":"[Inactive]","color":"gray"}]
 
@@ -289,29 +369,27 @@ function readout_comparison {
 	scoreboard players operation .b.total_iter v = .total_iter v
 
 	execute(if score .a.total_iter v >= .b.total_iter v){
-		scoreboard players operation .b.total_iter v *= 100 v
 		scoreboard players operation .total_iter_comp v = .b.total_iter v
+		scoreboard players operation .total_iter_comp v *= 100 v
 		scoreboard players operation .total_iter_comp v /= .a.total_iter v
-		# scoreboard players operation .total_iter_comp v *= 100 v
-		# scoreboard players operation .total_iter_comp v -= 100 v
 
 		scoreboard players set .output v 100
 		scoreboard players operation .output v -= .total_iter_comp v
-		tellraw @a ["", {"text":"Test B ran "}, {"score":{"name":".output","objective":"v"}}, {"text":"% slower than Test A"}]
+		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '">"'
 
 	}else execute(if score .a.total_iter v < .b.total_iter v){
-		scoreboard players operation .a.total_iter v *= 100 v
 		scoreboard players operation .total_iter_comp v = .a.total_iter v
+		scoreboard players operation .total_iter_comp v *= 100 v
 		scoreboard players operation .total_iter_comp v /= .b.total_iter v
-		# scoreboard players operation .total_iter_comp v *= 100 v
-		# scoreboard players operation .total_iter_comp v -= 100 v
 
 		scoreboard players set .output v 100
 		scoreboard players operation .output v -= .total_iter_comp v
-		tellraw @a ["", {"text":"Test A ran "}, {"score":{"name":".output","objective":"v"}}, {"text":"% slower than Test B"}]
+		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '"<"'
 	}
-	
-	function perf_tool:reset
+
+	function perf_tool:end_comparison
 }
 
 dir worldborder {
