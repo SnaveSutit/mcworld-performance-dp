@@ -11,9 +11,9 @@ function settings {
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
 	# The name of the first test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_a_name set value '{"text": "My Test A"}'
+	data modify storage perf_tool:ram test_a_name set value '{"text": "Mulv\'s UUID to string"}'
 	# The name of the second test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_b_name set value '{"text": "My Test B"}'
+	data modify storage perf_tool:ram test_b_name set value '{"text": "Gibbs\'s UUID to string"}'
 }
 
 dir a {
