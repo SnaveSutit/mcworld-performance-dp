@@ -6,7 +6,7 @@ function settings {
 	# How many ticks to run the tests for. Higher values provide more accurate data, but take longer. (Default: 1200)
 	# At 1200 (about 60 seconds per test at 50ms/t) there is a +-0.1% margin of error.
 	# At 20 (about a second per test at 50ms/t) there is a +-3.00% margin of error.
-	scoreboard players set .tick_count v 20
+	scoreboard players set .tick_count v 1200
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
 	# The name of the first test. This is used to identify the test in the results.
