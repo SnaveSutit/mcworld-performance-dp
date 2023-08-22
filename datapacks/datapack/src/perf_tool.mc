@@ -1,6 +1,9 @@
 
 function load {
 
+	function arr_math:setup
+	function arr_math:reset
+
 	scoreboard objectives add i dummy
 	scoreboard objectives add v dummy
 
@@ -374,28 +377,77 @@ function readout_comparison {
 	execute store result score .a.total_iter v run data get storage perf_tool:ram last_readout.total_iter
 	scoreboard players operation .b.total_iter v = .total_iter v
 
-	execute(if score .a.total_iter v >= .b.total_iter v){
-		scoreboard players operation .total_iter_comp v = .b.total_iter v
-		scoreboard players operation .total_iter_comp v *= 100 v
-		scoreboard players operation .total_iter_comp v /= .a.total_iter v
+	# Min/max
+	scoreboard players operation .min v = .a.total_iter v
+	scoreboard players operation .min v < .b.total_iter v
+	scoreboard players operation .max v = .a.total_iter v
+	scoreboard players operation .max v > .b.total_iter v
 
-		scoreboard players set .output v 100
-		scoreboard players operation .output v -= .total_iter_comp v
-		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '">"'
+	# tellraw @a [{"score": {"name": ".max", "objective": "v"}}, " / ", {"score": {"name": ".min", "objective": "v"}}]
 
-	}else execute(if score .a.total_iter v < .b.total_iter v){
-		scoreboard players operation .total_iter_comp v = .a.total_iter v
-		scoreboard players operation .total_iter_comp v *= 100 v
-		scoreboard players operation .total_iter_comp v /= .b.total_iter v
+	# max
+	scoreboard players operation in= arr_math.main = .max v
+	function arr_math:call/scoreboard/import
+	data modify storage arr_math:in var1 set from storage arr_math:main out
+	# max / min
+	scoreboard players operation in= arr_math.main = .min v
+	function arr_math:call/scoreboard/import
+	data modify storage arr_math:in var2 set from storage arr_math:main out
+	function arr_math:call/divide
+	# tellraw @a ["", {"text":"B/A raw: ","color":"gray"}, {"storage": "arr_math:main", "nbt": "out", "color": "aqua"}]
 
-		scoreboard players set .output v 100
-		scoreboard players operation .output v -= .total_iter_comp v
-		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '"<"'
-	}
+	# Flatten result
+	data modify storage arr_math:in var1 set from storage arr_math:main out
+	function perf_tool:num_to_string
+
+	# tellraw @a ["", {"text":"B/A: ","color":"gray"}, {"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}]
+
+	data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}, "x"]'
+
+	execute if score .max v = .a.total_iter v run data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '">"'
+	execute if score .max v = .b.total_iter v run data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '"<"'
 
 	function perf_tool:end_comparison
+}
+
+function num_to_string {
+	data modify storage arr_math:main out set value {jsonText:[]}
+	data modify storage arr_math:main temp set from storage arr_math:in var1.num
+
+	scoreboard players set #max_dec v 2
+
+	execute store result score #count v if data storage arr_math:in var1.num[]
+	execute store result score #dec v run data get storage arr_math:in var1.dec
+	scoreboard players operation #count v -= #dec v
+	execute if score #dec v > #max_dec v run scoreboard players operation #dec v = #max_dec v
+
+	execute if score #count v matches 1.. run {
+		{
+			name write_number_to_string
+			execute store result score #value v run data get storage arr_math:main temp[0]
+			data remove storage arr_math:main temp[0]
+			LOOP(10, i) {
+				execute if score #value v matches <%i%> run data modify storage arr_math:main out.jsonText append value "<%i%>"
+			}
+		}
+
+		scoreboard players remove #count v 1
+		execute if score #count v matches 1.. run function $block
+	}
+	execute if score #dec v matches 1.. run {
+		data modify storage arr_math:main out.jsonText append value "."
+		{
+			function perf_tool:write_number_to_string
+			scoreboard players remove #dec v 1
+			execute if score #dec v matches 1.. run function $block
+		}
+	}
+
+	function perf_tool:convert_json_component_to_text with storage arr_math:main out
+}
+
+function convert_json_component_to_text {
+	$data modify storage arr_math:main out.jsonText set value '$(jsonText)'
 }
 
 dir worldborder {
