@@ -405,10 +405,10 @@ function readout_comparison {
 	data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}, "x"]'
 
 	execute if score .max v = .a.total_iter v run {
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nthan "}, {"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}]'
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nfaster than "}, {"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}]'
 	}
 	execute if score .max v = .b.total_iter v run {
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nthan "}, {"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}]'
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nfaster than "}, {"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}]'
 	}
 
 	function perf_tool:end_comparison
