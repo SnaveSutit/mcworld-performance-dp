@@ -1,6 +1,9 @@
 
 function load {
 
+	function arr_math:setup
+	function arr_math:reset
+
 	scoreboard objectives add i dummy
 	scoreboard objectives add v dummy
 
@@ -56,9 +59,9 @@ function clear_results {
 	summon text_display -3.99 2.5 2.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 2.5 -1.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 
-	summon text_display -3.99 1.85 0.55 {text:'["", {"text": "|"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[4f,4f,4f]}}
+	summon text_display -3.99 2.9 0.5 {text:'""', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
 	summon text_display -3.99 3.0 0 {text:'["", {"text": "0%"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[1f,1f,1f]}}
-	summon text_display -3.99 3.0 0 {text:'["", {"text": "(+-2%)"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage_avg_error'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
+	summon text_display -3.99 3.0 0 {text:'["", {"text": "(+-0.1)"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage_avg_error'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
 
 	summon text_display -3.99 1.8 0 {text:'["", {"text": "Start/Stop"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 1.8 3 {text:'["", {"text": "Quick-Test A"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
@@ -100,7 +103,7 @@ function zzzstart_internal {
 
 	bossbar set minecraft:ms_per_tick color green
 
-	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:ram", "nbt":"test_b_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
+	tellraw @a ["\n", {"text":"[","color":"dark_gray"},{"text":"----- ","color":"aqua"}, {"storage":"perf_tool:ram", "nbt":"test_a_name", "interpret": true, "color":"aqua"}, {"text":" ------","color":"aqua"},{"text":"]","color":"dark_gray"}]
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Setup...","color":"aqua"}]
 	function tests:a/setup
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
@@ -374,28 +377,81 @@ function readout_comparison {
 	execute store result score .a.total_iter v run data get storage perf_tool:ram last_readout.total_iter
 	scoreboard players operation .b.total_iter v = .total_iter v
 
-	execute(if score .a.total_iter v >= .b.total_iter v){
-		scoreboard players operation .total_iter_comp v = .b.total_iter v
-		scoreboard players operation .total_iter_comp v *= 100 v
-		scoreboard players operation .total_iter_comp v /= .a.total_iter v
+	# Min/max
+	scoreboard players operation .min v = .a.total_iter v
+	scoreboard players operation .min v < .b.total_iter v
+	scoreboard players operation .max v = .a.total_iter v
+	scoreboard players operation .max v > .b.total_iter v
 
-		scoreboard players set .output v 100
-		scoreboard players operation .output v -= .total_iter_comp v
-		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '">"'
+	# tellraw @a [{"score": {"name": ".max", "objective": "v"}}, " / ", {"score": {"name": ".min", "objective": "v"}}]
 
-	}else execute(if score .a.total_iter v < .b.total_iter v){
-		scoreboard players operation .total_iter_comp v = .a.total_iter v
-		scoreboard players operation .total_iter_comp v *= 100 v
-		scoreboard players operation .total_iter_comp v /= .b.total_iter v
+	# max
+	scoreboard players operation in= arr_math.main = .max v
+	function arr_math:call/scoreboard/import
+	data modify storage arr_math:in var1 set from storage arr_math:main out
+	# max / min
+	scoreboard players operation in= arr_math.main = .min v
+	function arr_math:call/scoreboard/import
+	data modify storage arr_math:in var2 set from storage arr_math:main out
+	function arr_math:call/divide
+	# tellraw @a ["", {"text":"B/A raw: ","color":"gray"}, {"storage": "arr_math:main", "nbt": "out", "color": "aqua"}]
 
-		scoreboard players set .output v 100
-		scoreboard players operation .output v -= .total_iter_comp v
-		data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"score":{"name":".output","objective":"v"}}, "%"]'
-		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '"<"'
+	# Flatten result
+	data modify storage arr_math:in var1 set from storage arr_math:main out
+	function perf_tool:num_to_string
+
+	# tellraw @a ["", {"text":"B/A: ","color":"gray"}, {"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}]
+
+	data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}, "x"]'
+
+	execute if score .max v = .a.total_iter v run {
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nfaster than "}, {"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}]'
+	}
+	execute if score .max v = .b.total_iter v run {
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nfaster than "}, {"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}]'
 	}
 
 	function perf_tool:end_comparison
+}
+
+function num_to_string {
+	data modify storage arr_math:main out set value {jsonText:[]}
+	data modify storage arr_math:main temp set from storage arr_math:in var1.num
+
+	scoreboard players set #max_dec v 2
+
+	execute store result score #count v if data storage arr_math:in var1.num[]
+	execute store result score #dec v run data get storage arr_math:in var1.dec
+	scoreboard players operation #count v -= #dec v
+	execute if score #dec v > #max_dec v run scoreboard players operation #dec v = #max_dec v
+
+	execute if score #count v matches 1.. run {
+		{
+			name write_number_to_string
+			execute store result score #value v run data get storage arr_math:main temp[0]
+			data remove storage arr_math:main temp[0]
+			LOOP(10, i) {
+				execute if score #value v matches <%i%> run data modify storage arr_math:main out.jsonText append value "<%i%>"
+			}
+		}
+
+		scoreboard players remove #count v 1
+		execute if score #count v matches 1.. run function $block
+	}
+	execute if score #dec v matches 1.. run {
+		data modify storage arr_math:main out.jsonText append value "."
+		{
+			function perf_tool:write_number_to_string
+			scoreboard players remove #dec v 1
+			execute if score #dec v matches 1.. run function $block
+		}
+	}
+
+	function perf_tool:convert_json_component_to_text with storage arr_math:main out
+}
+
+function convert_json_component_to_text {
+	$data modify storage arr_math:main out.jsonText set value '$(jsonText)'
 }
 
 dir worldborder {

@@ -15,7 +15,7 @@ You must have these installed for the scripts to function properly.
 # Creating a Test
 - Fork this repo and create a new branch called `test-<test-name>` eg. `test-entity-relation-vs-macros`.
 - Open this repo in your favorite IDE, and run `yarn dev:datapack` to start MC-Build.
-- Modify `tests.mc` to include your test.
+- Modify `tests.mc` to include your tests.
 - Open the world in Minecraft and run `/reload` to reload the Data Pack.
 - Then click the button on the bottom command block to run the test.
 - You can optionally test each of the tests a single time with the command chains on the left and right (Tests A and B respectively).
