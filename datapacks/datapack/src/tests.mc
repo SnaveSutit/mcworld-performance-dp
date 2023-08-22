@@ -4,9 +4,8 @@
 
 function settings {
 	# How many ticks to run the tests for. Higher values provide more accurate data, but take longer. (Default: 1200)
-	# WARNING: Large values (higher than 1200) or really fast tests (with iteration counts > 20k) can cause the scoreboards values to overflow, making the results useless.
-	# At 1200 (about 60 seconds per test at 50ms/t) there is a +-0.01% margin of error.
-	# At 20 (about a second per test at 50ms/t) there is a +-0.02% margin of error.
+	# At 1200 (about 60 seconds per test at 50ms/t) there is a +-0.1% margin of error.
+	# At 20 (about a second per test at 50ms/t) there is a +-3.00% margin of error.
 	scoreboard players set .tick_count v 20
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
