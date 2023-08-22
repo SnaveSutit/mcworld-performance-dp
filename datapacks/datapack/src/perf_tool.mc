@@ -59,9 +59,9 @@ function clear_results {
 	summon text_display -3.99 2.5 2.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_a_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 2.5 -1.0 {text:'["", {"text": "[Empty]"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.test_b_results'],alignment:"left",background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 
-	summon text_display -3.99 1.85 0.55 {text:'["", {"text": "|"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[4f,4f,4f]}}
+	summon text_display -3.99 2.9 0.5 {text:'[{"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}, {"text": " ran\\n\\n\\n\\n\\n\\nfaster than "}, {"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
 	summon text_display -3.99 3.0 0 {text:'["", {"text": "0%"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[1f,1f,1f]}}
-	summon text_display -3.99 3.0 0 {text:'["", {"text": "(+-2%)"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage_avg_error'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
+	summon text_display -3.99 3.0 0 {text:'["", {"text": "(+-0.01)"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display', 'perf_tool.comparison_percentage_avg_error'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.25f,0.25f,0.25f]}}
 
 	summon text_display -3.99 1.8 0 {text:'["", {"text": "Start/Stop"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
 	summon text_display -3.99 1.8 3 {text:'["", {"text": "Quick-Test A"}]', Rotation:[-90.0f,0.0f], Tags:['perf_tool.test_results_display'],background:0,shadow:0b,default_background:0b,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.5f,0.5f,0.5f]}}
@@ -404,8 +404,12 @@ function readout_comparison {
 
 	data modify entity @e[tag=perf_tool.comparison_percentage,limit=1] text set value '[{"storage":"arr_math:main","nbt":"out.jsonText","interpret":true}, "x"]'
 
-	execute if score .max v = .a.total_iter v run data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '">"'
-	execute if score .max v = .b.total_iter v run data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '"<"'
+	execute if score .max v = .a.total_iter v run {
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}, {"text": " ran\\n\\nthan "}, {"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}]'
+	}
+	execute if score .max v = .b.total_iter v run {
+		data modify entity @e[tag=perf_tool.comparison,limit=1] text set value '[{"storage": "perf_tool:ram", "nbt": "test_b_name", "interpret": true}, {"text": " ran\\n\\nthan "}, {"storage": "perf_tool:ram", "nbt": "test_a_name", "interpret": true}]'
+	}
 
 	function perf_tool:end_comparison
 }
