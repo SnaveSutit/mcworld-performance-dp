@@ -13,14 +13,12 @@ function load load {
 	worldborder warning distance 0
 
 	# gamerule maxCommandChainLength 1000
-	gamerule maxCommandChainLength 1000000000
+	gamerule maxCommandChainLength 10000000
 
 	function tests:settings
 
 	scoreboard players operation .expected_total_ms v = .tick_count v
 	scoreboard players operation .expected_total_ms v *= .max_ms_per_tick v
-
-	function perf_tool:clear_results
 
 	bossbar add progress "Progress"
 	bossbar set minecraft:progress players @a
@@ -83,7 +81,7 @@ function end_comparison {
 function start_comparison {
 	scoreboard players set .is_comparison v 1
 	scoreboard players set .func_to_run v 0
-	schedule function perf_tool:zzzstart_internal 1t
+	<%'schedule function perf_tool:zzzstart_internal 1t'%>
 }
 
 function zzzstart_internal {
@@ -108,13 +106,13 @@ function zzzstart_internal {
 	function tests:a/setup
 	tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
 	function perf_tool:init_iter
-	schedule function perf_tool:iter 1t
+	<%'schedule function perf_tool:iter 1t'%>
 }
 
 function start_single {
 	scoreboard players set .is_comparison v 0
 	scoreboard players set .func_to_run v 0
-	schedule function perf_tool:zzzstart_internal 1t
+	<%'schedule function perf_tool:zzzstart_internal 1t'%>
 }
 
 function init_iter {
@@ -134,24 +132,26 @@ function init_iter {
 
 function do_a {
 	function perf_tool:worldborder/reset
-	block {
+	block do_a_loop {
 		function tests:a/test
 
 		function perf_tool:worldborder/get
 		scoreboard players add .iter v 1
 
+		# tellraw @a ["A:", {"score": {"name": ".delta", "objective": "v"}}, " >= ", {"score": {"name": ".max_ms_per_tick", "objective": "v"}}]
 		execute unless score .delta v >= .max_ms_per_tick v run function ^0
 	}
 }
 
 function do_b {
 	function perf_tool:worldborder/reset
-	block {
+	block do_b_loop {
 		function tests:b/test
 
 		function perf_tool:worldborder/get
 		scoreboard players add .iter v 1
 
+		# tellraw @a ["B:", {"score": {"name": ".iter", "objective": "v"}}, ' ', {"score": {"name": ".delta", "objective": "v"}}, " >= ", {"score": {"name": ".max_ms_per_tick", "objective": "v"}}]
 		execute unless score .delta v >= .max_ms_per_tick v run function ^0
 	}
 }
@@ -224,7 +224,8 @@ function iter {
 
 	scoreboard players remove .loop v 1
 	execute if score .loop v matches 1.. run {
-		schedule function *iter 1t
+		<%'schedule function perf_tool:iter 1t'%>
+		return 1
 	} else run {
 		#> Calculate averages
 		# ms
@@ -250,8 +251,8 @@ function iter {
 			function tests:b/setup
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Setup Complete!","color":"green"}]
 			function perf_tool:init_iter
-			schedule function perf_tool:iter 1t
-
+			<%'schedule function perf_tool:iter 1t'%>
+			return 1
 		} else execute if score .is_comparison v matches 2 run {
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
 			function perf_tool:text_display_readout_b
@@ -260,6 +261,7 @@ function iter {
 			function tests:b/cleanup
 			tellraw @a [{"text":"'◘ ","color":"dark_gray"}, {"text":"Cleanup Complete!","color":"green"}]
 			function perf_tool:readout_comparison
+			return 1
 
 		} else run {
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]

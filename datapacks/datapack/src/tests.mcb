@@ -10,14 +10,15 @@ function settings {
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
 	# The name of the first test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_a_name set value '{"text": "My Test A"}'
+	data modify storage perf_tool:ram test_a_name set value '{"text": "aj-frame-merge"}'
 	# The name of the second test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_b_name set value '{"text": "My Test B"}'
+	data modify storage perf_tool:ram test_b_name set value '{"text": "aj-frame-modify"}'
 }
 
 dir a {
 	function test {
 		# Everything ran from this function will count towards the time spent on the test.
+		execute as @e[type=item_display,tag=aj.rig_root] at @s run function #animated_java:global/root/on_tick
 	}
 
 	dir test {
@@ -25,17 +26,19 @@ dir a {
 	}
 
 	function setup {
-		# This function will be run before the performance test begins.
+		execute positioned 0 1 0 rotated 0 0 run function animated_java:armor_stand_merge/summon {args:{animation:'walk',start_animation:1b,frame:1}}
 	}
 
 	function cleanup {
 		# This function will be run after the performance test ends.
+		function animated_java:armor_stand_merge/remove/all
 	}
 }
 
 dir b {
 	function test {
 		# Everything ran from this function will count towards the time spent on the test.
+		execute as @e[type=item_display,tag=aj.rig_root] at @s run function #animated_java:global/root/on_tick
 	}
 
 	dir test {
@@ -43,10 +46,11 @@ dir b {
 	}
 
 	function setup {
-		# This function will be run before the performance test begins.
+		execute positioned 0 1 0 rotated 0 0 run function animated_java:armor_stand_modify/summon {args:{animation:'walk',start_animation:1b,frame:1}}
 	}
 
 	function cleanup {
 		# This function will be run after the performance test ends.
+		function animated_java:armor_stand_modify/remove/all
 	}
 }

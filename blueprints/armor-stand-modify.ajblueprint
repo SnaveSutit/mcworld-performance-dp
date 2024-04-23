@@ -4,10 +4,10 @@
 		"format_version": "1.0.0",
 		"uuid": "30a6eaf0-5ae0-4281-aa29-299b1447d9aa",
 		"save_location": "D:\\github-repos\\mcworld-performance-dp\\blueprints\\armor-stand-modify.ajblueprint",
-		"last_used_export_namespace": "armor_stand"
+		"last_used_export_namespace": "armor_stand_modify"
 	},
 	"project_settings": {
-		"export_namespace": "armor_stand",
+		"export_namespace": "armor_stand_modify",
 		"enable_plugin_mode": false,
 		"enable_resource_pack": true,
 		"display_item": "minecraft:white_dye",

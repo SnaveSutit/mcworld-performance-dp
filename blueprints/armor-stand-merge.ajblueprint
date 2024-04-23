@@ -4,10 +4,10 @@
 		"format_version": "1.0.0",
 		"uuid": "c6c554c7-e04b-44c7-aacf-399d7ff9bb1c",
 		"save_location": "D:\\github-repos\\mcworld-performance-dp\\blueprints\\armor-stand-merge.ajblueprint",
-		"last_used_export_namespace": "armor_stand"
+		"last_used_export_namespace": "armor_stand_merge"
 	},
 	"project_settings": {
-		"export_namespace": "armor_stand",
+		"export_namespace": "armor_stand_merge",
 		"enable_plugin_mode": false,
 		"enable_resource_pack": true,
 		"display_item": "minecraft:white_dye",
