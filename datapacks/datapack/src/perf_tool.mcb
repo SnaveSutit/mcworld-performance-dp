@@ -421,8 +421,7 @@ function num_to_string {
 	execute if score #dec v > #max_dec v run scoreboard players operation #dec v = #max_dec v
 
 	execute if score #count v matches 1.. run {
-		{
-			name write_number_to_string
+		block write_number_to_string {
 			execute store result score #value v run data get storage arr_math:main temp[0]
 			data remove storage arr_math:main temp[0]
 			REPEAT (0, 9) as i {
