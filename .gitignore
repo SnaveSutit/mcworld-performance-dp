@@ -15,6 +15,7 @@ world/playerdata/
 
 datapacks/*/data/
 !datapacks/array_math/data/
+!datapacks/aj-*/data/
 datapacks/*/.mcproject/CROSS_RUN.json
 
 # Logs
