@@ -1,5 +1,5 @@
 
-function load {
+function load load {
 
 	function arr_math:setup
 	function arr_math:reset
@@ -74,7 +74,7 @@ function reset {
 }
 
 function end_comparison {
-	schedule clear perf_tool:iter
+	<%'schedule clear perf_tool:iter'%>
 	bossbar set minecraft:progress name ["", {"text":"[Inactive]","color":"gray"}]
 	bossbar set minecraft:iterations_per_tick players
 	bossbar set minecraft:ms_per_tick players
@@ -140,7 +140,7 @@ function do_a {
 		function perf_tool:worldborder/get
 		scoreboard players add .iter v 1
 
-		execute unless score .delta v >= .max_ms_per_tick v run function $block
+		execute unless score .delta v >= .max_ms_per_tick v run function ^0
 	}
 }
 
@@ -152,7 +152,7 @@ function do_b {
 		function perf_tool:worldborder/get
 		scoreboard players add .iter v 1
 
-		execute unless score .delta v >= .max_ms_per_tick v run function $block
+		execute unless score .delta v >= .max_ms_per_tick v run function ^0
 	}
 }
 
@@ -183,33 +183,29 @@ function iter {
 	execute store result bossbar minecraft:iterations_per_tick value run scoreboard players get .iter v
 	execute store result bossbar minecraft:iterations_per_tick max run scoreboard players get .max_iter v
 
-	(
-		bossbar set minecraft:iterations_per_tick name ["",
-			{"text":"iter/t","color":"gray"},
-			{"text":" (","color":"dark_gray"},
-			{"score":{"name":".min_iter", "objective":"v"},"color":"red"},
-			{"text":"/","color":"dark_gray"},
-			{"score":{"name":".iter", "objective":"v"},"color":"aqua"},
-			{"text":"/","color":"dark_gray"},
-			{"score":{"name":".max_iter", "objective":"v"},"color":"green"},
-			{"text":")","color":"dark_gray"}
-		]
-	)
+	bossbar set minecraft:iterations_per_tick name ["", \
+		{"text":"iter/t","color":"gray"}, \
+		{"text":" (","color":"dark_gray"}, \
+		{"score":{"name":".min_iter", "objective":"v"},"color":"red"}, \
+		{"text":"/","color":"dark_gray"}, \
+		{"score":{"name":".iter", "objective":"v"},"color":"aqua"}, \
+		{"text":"/","color":"dark_gray"}, \
+		{"score":{"name":".max_iter", "objective":"v"},"color":"green"}, \
+		{"text":")","color":"dark_gray"} \
+	]
 
 	execute store result bossbar minecraft:ms_per_tick value run scoreboard players get .delta v
 	execute store result bossbar minecraft:ms_per_tick max run scoreboard players get .max_ms v
-	(
-		bossbar set minecraft:ms_per_tick name ["",
-			{"text":"ms/t","color":"gray"},
-			{"text":" (","color":"dark_gray"},
-			{"score":{"name":".min_ms", "objective":"v"},"color":"green"},
-			{"text":"/","color":"dark_gray"},
-			{"score":{"name":".delta", "objective":"v"},"color":"aqua"},
-			{"text":"/","color":"dark_gray"},
-			{"score":{"name":".max_ms", "objective":"v"},"color":"red"},
-			{"text":")","color":"dark_gray"}
-		]
-	)
+	bossbar set minecraft:ms_per_tick name ["", \
+		{"text":"ms/t","color":"gray"}, \
+		{"text":" (","color":"dark_gray"}, \
+		{"score":{"name":".min_ms", "objective":"v"},"color":"green"}, \
+		{"text":"/","color":"dark_gray"}, \
+		{"score":{"name":".delta", "objective":"v"},"color":"aqua"}, \
+		{"text":"/","color":"dark_gray"}, \
+		{"score":{"name":".max_ms", "objective":"v"},"color":"red"}, \
+		{"text":")","color":"dark_gray"} \
+	]
 	execute if score .delta v matches ..50 run {
 		bossbar set minecraft:ms_per_tick color green
 	}
@@ -227,9 +223,9 @@ function iter {
 	bossbar set minecraft:progress name ["", {"text":"Total ms: ","color":"gray"}, {"score":{"name":".total_ms","objective":"v"},"color":"aqua"}, {"text":" | ","color":"dark_gray"}, {"text":"Total iter: ","color":"gray"}, {"score":{"name":".total_iter","objective":"v"},"color":"aqua"}]
 
 	scoreboard players remove .loop v 1
-	execute(if score .loop v matches 1..){
-		schedule function $top 1t
-	} else {
+	execute if score .loop v matches 1.. run {
+		schedule function *iter 1t
+	} else run {
 		#> Calculate averages
 		# ms
 		scoreboard players operation .avg_ms v = .total_ms v
@@ -238,7 +234,7 @@ function iter {
 		scoreboard players operation .avg_iter v = .total_iter v
 		scoreboard players operation .avg_iter v /= .tick_count v
 
-		execute(if score .is_comparison v matches 1){
+		execute if score .is_comparison v matches 1 run {
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
 			function perf_tool:text_display_readout_a
 			function perf_tool:save_readout
@@ -256,7 +252,7 @@ function iter {
 			function perf_tool:init_iter
 			schedule function perf_tool:iter 1t
 
-		}else execute(if score .is_comparison v matches 2){
+		} else execute if score .is_comparison v matches 2 run {
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
 			function perf_tool:text_display_readout_b
 			# function perf_tool:readout_single
@@ -265,7 +261,7 @@ function iter {
 			tellraw @a [{"text":"'◘ ","color":"dark_gray"}, {"text":"Cleanup Complete!","color":"green"}]
 			function perf_tool:readout_comparison
 
-		}else{
+		} else run {
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Test Complete!","color":"green"}]
 			function perf_tool:readout_single
 			tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text":"Starting Cleanup...","color":"aqua"}]
@@ -297,16 +293,16 @@ function readout_single {
 	tellraw @a [{"text":"| |◘[","color":"dark_gray"}, {"text": " Totals ", "color":"aqua"},{"text":"]","color":"dark_gray"}]
 	tellraw @a [{"text":"| | |◘ ","color":"dark_gray"}, {"text": "ms: ","color":"gray"},{"score":{"name": ".total_ms","objective": "v"},"color":"aqua"}]
 	tellraw @a [{"text":"| | '◘ ","color":"dark_gray"}, {"text": "Iterations: ","color":"gray"},{"score":{"name": ".total_iter","objective": "v"},"color":"aqua"}]
-	#tellraw @a [{"text":"|◘","color":"dark_gray"}, {"text": "Total commands ran: ","color":"gray"},{"score":{"name": "#total.commands","objective": "v"},"color":"aqua"}]
+	# tellraw @a [{"text":"|◘","color":"dark_gray"}, {"text": "Total commands ran: ","color":"gray"},{"score":{"name": "#total.commands","objective": "v"},"color":"aqua"}]
 	tellraw @a [{"text":"| |","color":"dark_gray"}]
 	tellraw @a [{"text":"| |◘[","color":"dark_gray"}, {"text": " Averages ", "color":"aqua"},{"text":"]","color":"dark_gray"}]
 
-	execute(if score .avg.ms v > .max_ms_per_tick v){
+	execute if score .avg.ms v > .max_ms_per_tick v run {
 		tellraw @a [{"text":"| | |◘ ","color":"dark_gray"}, {"text": "ms/t: ","color":"gray"},{"score":{"name": ".avg_ms","objective": "v"},"color":"red"}]
-	} else {
+	} else run {
 		tellraw @a [{"text":"| | |◘ ","color":"dark_gray"}, {"text": "ms/t: ","color":"gray"},{"score":{"name": ".avg_ms","objective": "v"},"color":"aqua"}]
 	}
-	#tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text": "Avg Commands/t: ","color":"gray"},{"score":{"name": "#avg.commands","objective": "v"},"color":"aqua"}]
+	# tellraw @a [{"text":"|◘ ","color":"dark_gray"}, {"text": "Avg Commands/t: ","color":"gray"},{"score":{"name": "#avg.commands","objective": "v"},"color":"aqua"}]
 	tellraw @a [{"text":"| | '◘ ","color":"dark_gray"}, {"text": "Iterations/t: ","color":"gray"},{"score":{"name": ".avg_iter","objective": "v"},"color":"aqua"}]
 
 	tellraw @a [{"text":"| |","color":"dark_gray"}]
@@ -317,57 +313,56 @@ function readout_single {
 
 }
 
-LOOP(['a', 'b'],i) {
+REPEAT (['a', 'b']) as i {
 	function text_display_readout_<%i%> {
-		(
-			data modify entity @e[tag=perf_tool.test_<%i%>_results,limit=1] text set value '[{"text":"","color":"gray"},
-				{"text": "Total Iterations: "},
-				{"score": {"name": ".total_iter", "objective": "v"}, "color": "aqua"},
-				"\\n\\n",
-				{"text": "Total ms"},
-				" (",
-				{"text": "Expected", "color": "yellow"},
-				"/",
-				{"text": "Actual", "color": "aqua"},
-				")",
-				"\\n -> ",
-				{"score": {"name": ".expected_total_ms", "objective": "v"}, "color": "yellow"},
-				"/",
-				{"score": {"name": ".total_ms", "objective": "v"}, "color": "aqua"},
-				"\\n\\n",
+		data modify entity @e[tag=perf_tool.test_<%i%>_results,limit=1] text set value '[ \
+			{"text":"","color":"gray"}, \
+			{"text": "Total Iterations: "}, \
+			{"score": {"name": ".total_iter", "objective": "v"}, "color": "aqua"}, \
+			"\\n\\n", \
+			{"text": "Total ms"}, \
+			" (", \
+			{"text": "Expected", "color": "yellow"}, \
+			"/", \
+			{"text": "Actual", "color": "aqua"}, \
+			")", \
+			"\\n -> ", \
+			{"score": {"name": ".expected_total_ms", "objective": "v"}, "color": "yellow"}, \
+			"/", \
+			{"score": {"name": ".total_ms", "objective": "v"}, "color": "aqua"}, \
+			"\\n\\n", \
 
-				{"text": "ms/t"},
-				" (",
-				{"text": "Min", "color": "green"},
-				"/",
-				{"text": "Avg", "color": "aqua"},
-				"/",
-				{"text": "Max", "color": "red"},
-				")",
-				"\\n -> ",
-				{"score": {"name": ".min_ms", "objective": "v"}, "color": "green"},
-				"/",
-				{"score": {"name": ".avg_ms", "objective": "v"}, "color": "aqua"},
-				"/",
-				{"score": {"name": ".max_ms", "objective": "v"}, "color": "red"},
-				"\\n\\n",
+			{"text": "ms/t"}, \
+			" (", \
+			{"text": "Min", "color": "green"}, \
+			"/", \
+			{"text": "Avg", "color": "aqua"}, \
+			"/", \
+			{"text": "Max", "color": "red"}, \
+			")", \
+			"\\n -> ", \
+			{"score": {"name": ".min_ms", "objective": "v"}, "color": "green"}, \
+			"/", \
+			{"score": {"name": ".avg_ms", "objective": "v"}, "color": "aqua"}, \
+			"/", \
+			{"score": {"name": ".max_ms", "objective": "v"}, "color": "red"}, \
+			"\\n\\n", \
 
-				{"text": "Iterations/t"},
-				" (",
-				{"text": "Min", "color": "red"},
-				"/",
-				{"text": "Avg", "color": "aqua"},
-				"/",
-				{"text": "Max", "color": "green"},
-				")",
-				"\\n -> ",
-				{"score": {"name": ".min_iter", "objective": "v"}, "color": "red"},
-				"/",
-				{"score": {"name": ".avg_iter", "objective": "v"}, "color": "aqua"},
-				"/",
-				{"score": {"name": ".max_iter", "objective": "v"}, "color": "green"}
-			]'
-		)
+			{"text": "Iterations/t"}, \
+			" (", \
+			{"text": "Min", "color": "red"}, \
+			"/", \
+			{"text": "Avg", "color": "aqua"}, \
+			"/", \
+			{"text": "Max", "color": "green"}, \
+			")", \
+			"\\n -> ", \
+			{"score": {"name": ".min_iter", "objective": "v"}, "color": "red"}, \
+			"/", \
+			{"score": {"name": ".avg_iter", "objective": "v"}, "color": "aqua"}, \
+			"/", \
+			{"score": {"name": ".max_iter", "objective": "v"}, "color": "green"} \
+		]'
 	}
 }
 
@@ -430,20 +425,20 @@ function num_to_string {
 			name write_number_to_string
 			execute store result score #value v run data get storage arr_math:main temp[0]
 			data remove storage arr_math:main temp[0]
-			LOOP(10, i) {
+			REPEAT (0, 9) as i {
 				execute if score #value v matches <%i%> run data modify storage arr_math:main out.jsonText append value "<%i%>"
 			}
 		}
 
 		scoreboard players remove #count v 1
-		execute if score #count v matches 1.. run function $block
+		execute if score #count v matches 1.. run function ^0
 	}
 	execute if score #dec v matches 1.. run {
 		data modify storage arr_math:main out.jsonText append value "."
 		{
 			function perf_tool:write_number_to_string
 			scoreboard players remove #dec v 1
-			execute if score #dec v matches 1.. run function $block
+			execute if score #dec v matches 1.. run function ^0
 		}
 	}
 

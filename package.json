@@ -8,7 +8,7 @@
 		"create_datapack": "ts-node ./.tools/create_datapack.ts",
 		"scan_datapacks": "ts-node ./.tools/scan_datapacks.ts",
 		"dev": "echo Try running 'dev:datapack-id' instead! Or run 'scan_datapacks' if you've added a new datapack and it's not registered.",
-		"dev:datapack": "cd \"datapacks\\datapack\" && mcb -w-alt -debounce-time 100"
+		"dev:datapack": "cd \"datapacks\\datapack\" && mcb watch"
 	},
 	"datapacks": {
 		"datapack": "datapack"
