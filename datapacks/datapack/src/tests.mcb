@@ -6,18 +6,20 @@ function settings {
 	# How many ticks to run the tests for. Higher values provide more accurate data, but take longer. (Default: 1200)
 	# At 1200 (about 60 seconds per test at 50ms/t) there is a +-0.1% margin of error.
 	# At 20 (about a second per test at 50ms/t) there is a +-3.00% margin of error.
-	scoreboard players set .tick_count v 1200
+	scoreboard players set .tick_count v 600
 	# Maximum time to use per tick (Default/Max 50).
 	scoreboard players set .max_ms_per_tick v 50
 	# The name of the first test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_a_name set value '{"text": "My Test A"}'
+	data modify storage perf_tool:ram test_a_name set value {"text": "Scoreboard ID"}
 	# The name of the second test. This is used to identify the test in the results.
-	data modify storage perf_tool:ram test_b_name set value '{"text": "My Test B"}'
+	data modify storage perf_tool:ram test_b_name set value {"text": "Predicate Score Check"}
 }
 
 dir a {
 	function test {
 		# Everything ran from this function will count towards the time spent on the test.
+		execute store result score #id testa run random value 1..100
+		execute as @e[tag=testa] if score @s testa = #id testa run scoreboard players set @s testa 1
 	}
 
 	dir test {
@@ -26,27 +28,71 @@ dir a {
 
 	function setup {
 		# This function will be run before the performance test begins.
+		scoreboard objectives add testa dummy
+		REPEAT(1, 100) {
+			summon marker ~ ~ ~ {Tags:['testa']}
+		}
+		scoreboard players set #temp testa 0
+		execute as @e[tag=testa] store result score @s testa run scoreboard players add #temp testa 1
 	}
 
 	function cleanup {
 		# This function will be run after the performance test ends.
+		scoreboard objectives remove testa
+		kill @e[tag=testa]
 	}
 }
 
 dir b {
 	function test {
 		# Everything ran from this function will count towards the time spent on the test.
+		execute store result score #id testb run random value 1..100
+		execute as @e[tag=testb,predicate=tests:b/test/test] run scoreboard players set @s testb 1
 	}
 
 	dir test {
 		# Any extra functions required for test can be put here
+		predicate test {
+			"condition": "minecraft:value_check",
+			"value": {
+				"type": "minecraft:score",
+				"target": "this",
+				"score": "testb"
+			},
+			"range": {
+				"min": {
+				"type": "minecraft:score",
+				"target": {
+					"type": "minecraft:fixed",
+					"name": "#id"
+				},
+				"score": "testb"
+				},
+				"max": {
+				"type": "minecraft:score",
+				"target": {
+					"type": "minecraft:fixed",
+					"name": "#id"
+				},
+				"score": "testb"
+				}
+			}
+		}
 	}
 
 	function setup {
 		# This function will be run before the performance test begins.
+		scoreboard objectives add testb dummy
+		REPEAT(1, 100) {
+			summon marker ~ ~ ~ {Tags:['testb']}
+		}
+		scoreboard players set #temp testb 0
+		execute as @e[tag=testb] store result score @s testb run scoreboard players add #temp testb 1
 	}
 
 	function cleanup {
 		# This function will be run after the performance test ends.
+		scoreboard objectives remove testb
+		kill @e[tag=testb]
 	}
 }
